@@ -1,0 +1,25 @@
+
+using System.Net.Sockets;
+using System.Net;
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        Socket cliente = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        IPEndPoint direccion = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1234);
+        cliente.Connect(direccion);
+        Console.WriteLine(" El Cliente esta conectado al servidor.");
+        while (true)
+        {
+            string mensajeDeCliente;
+            Console.WriteLine(" Ingrese el mensaje a enviar: ");
+            mensajeDeCliente = Console.ReadLine();
+            cliente.Send(System.Text.Encoding.ASCII.GetBytes(mensajeDeCliente), 0, mensajeDeCliente.Length, SocketFlags.None);
+
+            byte[] mensajeDeServidor = new byte[255];
+            int size = cliente.Receive(mensajeDeServidor);
+            Console.WriteLine(" Se le envio al Servidor: " + System.Text.Encoding.ASCII.GetString(mensajeDeServidor, 0, size));
+        }
+    }
+}
+
