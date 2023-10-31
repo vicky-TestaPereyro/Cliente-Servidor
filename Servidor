@@ -1,0 +1,41 @@
+
+using System.Net;
+using System.Net.Http.Json;
+using System.Net.Sockets;
+internal class Program
+{
+    public static String numDeCliente;
+    private static void Main(string[] args)
+    {
+        Socket servidor = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        IPEndPoint direccion = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1234);
+        servidor.Bind(direccion);
+        servidor.Listen(100);
+        Console.WriteLine("El servidor esta escuchando...");
+        Socket cliente = default(Socket);
+
+        int contador = 0;
+        Program p = new Program();
+        while (true)
+        {
+            contador++;
+
+            cliente = servidor.Accept();
+            numDeCliente = (contador + " Cliente conectado");
+            Console.WriteLine(numDeCliente);
+            Thread usuarioThread = new Thread(new ThreadStart(() => p.Usuario(cliente)));
+            usuarioThread.Start();
+        }
+    }
+
+    public void Usuario(Socket cliente)
+    {
+        while (true)
+        {
+            byte[] mensaje = new byte[255];
+            int size = cliente.Receive(mensaje);
+            Console.WriteLine("Mensaje Recibido de " + numDeCliente + " es: " + System.Text.Encoding.ASCII.GetString(mensaje, 0, size));
+            cliente.Send(mensaje, 0, size, SocketFlags.None);
+        }
+    }
+}
